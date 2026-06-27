@@ -91,7 +91,44 @@
             return document.querySelector('nav');
         }
     }
-    class GoogleAdapter extends BaseAdapter {}
+    class GoogleAdapter extends BaseAdapter {
+        getConversations() {
+            return Array.from(document.querySelectorAll('div[data-test-id="conversation"]'));
+        }
+
+        injectCheckbox(node, onSelectChange) {
+            if (node.querySelector('.bulk-delete-checkbox')) return;
+            node.classList.add('gemini-bulk-delete-row');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'bulk-delete-checkbox';
+            checkbox.addEventListener('change', (e) => onSelectChange(node, e.target.checked));
+            node.insertBefore(checkbox, node.firstChild);
+        }
+
+        async deleteConversation(node) {
+            const menuBtn = node.querySelector('button[data-test-id="actions-menu-button"]');
+            if (!menuBtn) return Promise.reject('Menu button not found');
+            menuBtn.click();
+
+            await new Promise(r => setTimeout(r, 400));
+            const deleteItem = document.querySelector('button[data-test-id="delete-button"], div[role="menu"] button:has(mat-icon[data-mat-icon-name="delete"])');
+            if (!deleteItem) return Promise.reject('Delete menu item not found');
+            deleteItem.click();
+
+            await new Promise(r => setTimeout(r, 400));
+            const confirmBtn = document.querySelector('mat-dialog-container button[data-test-id="confirm-button"]');
+            if (!confirmBtn) return Promise.reject('Confirm button not found');
+            confirmBtn.click();
+            
+            await new Promise(r => setTimeout(r, 600));
+            return Promise.resolve();
+        }
+
+        getSidebarHeader() {
+            return document.querySelector('.gb_Rd') || document.querySelector('.chat-history');
+        }
+    }
 
     const getAdapter = () => {
         const host = window.location.hostname;
