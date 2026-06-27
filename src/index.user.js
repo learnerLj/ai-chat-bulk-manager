@@ -20,6 +20,44 @@
     const GEMINI_BOOT_DELAY_MS = 3500;
     const BULK_DELETE_INTERVAL_MS = 100;
     const GEMINI_DELETE_POLL_MS = 150;
+    const MESSAGES = {
+        zh: {
+            archiveSelected: '归档选中',
+            deleteSelected: '删除选中',
+            stop: '停止',
+            ready: '就绪',
+            stopping: '停止中',
+            cancelled: '已取消',
+            done: '完成',
+            stopped: '已停止',
+            noSelection: '未选择会话',
+            archiveAction: '归档',
+            deleteAction: '删除',
+            detectedConversations: ({ count }) => `检测到 ${count} 条会话`,
+            processing: ({ current, total }) => `正在处理 ${current}/${total}`,
+            runningAction: ({ actionLabel, current, total }) => `正在${actionLabel} (${current}/${total})`,
+            failed: ({ message }) => `失败：${message}`,
+            confirmAction: ({ actionLabel, count }) => `确认${actionLabel}选中的 ${count} 条会话？`
+        },
+        en: {
+            archiveSelected: 'Archive selected',
+            deleteSelected: 'Delete selected',
+            stop: 'Stop',
+            ready: 'Ready',
+            stopping: 'Stopping',
+            cancelled: 'Cancelled',
+            done: 'Done',
+            stopped: 'Stopped',
+            noSelection: 'No conversations selected',
+            archiveAction: 'archive',
+            deleteAction: 'delete',
+            detectedConversations: ({ count }) => `Detected ${count} conversations`,
+            processing: ({ current, total }) => `Processing ${current}/${total}`,
+            runningAction: ({ actionLabel, current, total }) => `${actionLabel} (${current}/${total})`,
+            failed: ({ message }) => `Failed: ${message}`,
+            confirmAction: ({ actionLabel, count }) => `Confirm ${actionLabel} for ${count} selected conversations?`
+        }
+    };
     const GEMINI_SELECTORS = {
         conversation: [
             'gem-nav-list-item[data-test-id="conversation"]',
@@ -76,6 +114,26 @@
     const log = (...args) => console.log(LOG_PREFIX, ...args);
     const warn = (...args) => console.warn(LOG_PREFIX, ...args);
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const getPreferredLanguage = () => {
+        const languages = [
+            document.documentElement.lang,
+            ...Array.from(navigator.languages || []),
+            navigator.language
+        ];
+        const hasChinese = languages.some(language => String(language || '').toLowerCase().startsWith('zh'));
+        if (hasChinese) return 'zh';
+        const hasEnglish = languages.some(language => String(language || '').toLowerCase().startsWith('en'));
+        if (hasEnglish) return 'en';
+        return 'zh';
+    };
+
+    const CURRENT_LANGUAGE = getPreferredLanguage();
+
+    const formatMessage = (key, params = {}) => {
+        const message = (MESSAGES[CURRENT_LANGUAGE] || MESSAGES.zh)[key] || MESSAGES.zh[key];
+        return typeof message === 'function' ? message(params) : message;
+    };
 
     const getText = (node) => (node && node.textContent ? node.textContent.trim() : '');
 
@@ -482,20 +540,20 @@
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'bulk-btn';
             deleteBtn.id = 'bulk-delete-btn';
-            deleteBtn.textContent = '删除选中 (0)';
+            deleteBtn.textContent = `${formatMessage('deleteSelected')} (0)`;
             const archiveBtn = document.createElement('button');
             archiveBtn.className = 'bulk-btn';
             archiveBtn.id = 'bulk-archive-btn';
-            archiveBtn.textContent = '归档选中 (0)';
+            archiveBtn.textContent = `${formatMessage('archiveSelected')} (0)`;
             const stopBtn = document.createElement('button');
             stopBtn.className = 'bulk-btn';
             stopBtn.id = 'bulk-stop-btn';
-            stopBtn.textContent = '停止';
+            stopBtn.textContent = formatMessage('stop');
             stopBtn.disabled = true;
             const status = document.createElement('span');
             status.className = 'bulk-status';
             status.id = 'bulk-status';
-            status.textContent = '就绪';
+            status.textContent = formatMessage('ready');
             if (isChatGPT) {
                 panel.append(selectAll, archiveBtn, deleteBtn, stopBtn, status);
             } else {
@@ -525,7 +583,7 @@
             deleteBtn.addEventListener('click', () => this.runBulkDelete());
             stopBtn.addEventListener('click', () => {
                 this.stopRequested = true;
-                this.setStatus('停止中');
+                this.setStatus(formatMessage('stopping'));
             });
         }
 
@@ -542,10 +600,10 @@
             const btn = document.getElementById('bulk-delete-btn');
             const archiveBtn = document.getElementById('bulk-archive-btn');
             if (btn) {
-                btn.innerText = `删除选中 (${this.selectedNodes.size})`;
+                btn.innerText = `${formatMessage('deleteSelected')} (${this.selectedNodes.size})`;
             }
             if (archiveBtn) {
-                archiveBtn.innerText = `归档选中 (${this.selectedNodes.size})`;
+                archiveBtn.innerText = `${formatMessage('archiveSelected')} (${this.selectedNodes.size})`;
             }
         }
 
@@ -569,7 +627,7 @@
             const list = this.adapter.getConversations();
             list.forEach(node => this.adapter.injectCheckbox(node, (n, s, e) => this.onSelectChange(n, s, e)));
             this.injectPanel();
-            this.setStatus(`检测到 ${list.length} 条会话`);
+            this.setStatus(formatMessage('detectedConversations', { count: list.length }));
         }
 
         startObserver() {
@@ -583,13 +641,13 @@
 
         async runBulkDelete() {
             this.syncSelectedFromDom();
-            const actionLabel = '删除';
+            const actionLabel = formatMessage('deleteAction');
             if (this.selectedNodes.size === 0) {
-                this.setStatus('未选择会话');
+                this.setStatus(formatMessage('noSelection'));
                 return;
             }
-            if (!window.confirm(`确认${actionLabel}选中的 ${this.selectedNodes.size} 条会话？`)) {
-                this.setStatus('已取消');
+            if (!window.confirm(formatMessage('confirmAction', { actionLabel, count: this.selectedNodes.size }))) {
+                this.setStatus(formatMessage('cancelled'));
                 return;
             }
             await this.runBulkAction('delete');
@@ -602,7 +660,7 @@
         async runBulkAction(action) {
             this.syncSelectedFromDom();
             if (this.isDeleting || this.selectedNodes.size === 0) {
-                this.setStatus('未选择会话');
+                this.setStatus(formatMessage('noSelection'));
                 return;
             }
             this.isDeleting = true;
@@ -615,7 +673,7 @@
             if (btn) btn.disabled = true;
             if (archiveBtn) archiveBtn.disabled = true;
             if (stopBtn) stopBtn.disabled = false;
-            const actionLabel = action === 'archive' ? '归档' : '删除';
+            const actionLabel = action === 'archive' ? formatMessage('archiveAction') : formatMessage('deleteAction');
             
             for (let i = 0; i < nodes.length; i++) {
                 if (this.stopRequested) break;
@@ -626,8 +684,14 @@
                     continue;
                 }
                 const activeBtn = action === 'archive' ? archiveBtn : btn;
-                if (activeBtn) activeBtn.innerText = `正在${actionLabel} (${i + 1}/${nodes.length})`;
-                this.setStatus(`正在处理 ${i + 1}/${nodes.length}`);
+                if (activeBtn) {
+                    activeBtn.innerText = formatMessage('runningAction', {
+                        actionLabel,
+                        current: i + 1,
+                        total: nodes.length
+                    });
+                }
+                this.setStatus(formatMessage('processing', { current: i + 1, total: nodes.length }));
                 try {
                     if (action === 'archive') {
                         await this.adapter.archiveConversation(node);
@@ -637,7 +701,7 @@
                     this.selectedNodes.delete(node);
                 } catch(e) {
                     console.error(LOG_PREFIX, `${actionLabel} failed`, e);
-                    this.setStatus(`失败：${e.message || e}`);
+                    this.setStatus(formatMessage('failed', { message: e.message || e }));
                 }
                 await delay(BULK_DELETE_INTERVAL_MS);
             }
@@ -648,7 +712,7 @@
             if (btn) btn.disabled = false;
             if (archiveBtn) archiveBtn.disabled = false;
             if (stopBtn) stopBtn.disabled = true;
-            this.setStatus(this.stopRequested ? '已停止' : '完成');
+            this.setStatus(this.stopRequested ? formatMessage('stopped') : formatMessage('done'));
             this.isDeleting = false;
         }
     }

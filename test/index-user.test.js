@@ -19,8 +19,26 @@ test('ChatGPT supports archive as the primary bulk action', () => {
     assert.match(source, /archiveConversation/);
     assert.match(source, /is_archived:\s*true/);
     assert.match(source, /bulk-archive-btn/);
-    assert.match(source, /归档选中/);
-    assert.match(source, /删除选中/);
+    assert.match(source, /formatMessage\('archiveSelected'/);
+    assert.match(source, /formatMessage\('deleteSelected'/);
+});
+
+test('user-facing labels are localized with Chinese as the default', () => {
+    assert.match(source, /const MESSAGES = {/);
+    assert.match(source, /zh:\s*{/);
+    assert.match(source, /en:\s*{/);
+    assert.match(source, /archiveSelected:\s*'归档选中'/);
+    assert.match(source, /archiveSelected:\s*'Archive selected'/);
+    assert.match(source, /deleteSelected:\s*'删除选中'/);
+    assert.match(source, /deleteSelected:\s*'Delete selected'/);
+    assert.match(source, /return 'zh';/);
+});
+
+test('language detection uses page language before browser language', () => {
+    assert.match(source, /document\.documentElement\.lang/);
+    assert.match(source, /navigator\.languages/);
+    assert.match(source, /navigator\.language/);
+    assert.match(source, /getPreferredLanguage/);
 });
 
 test('Gemini injection uses MutationObserver for dynamic history rows', () => {
@@ -68,8 +86,8 @@ test('bulk controls include a stop button for long deletion queues', () => {
 });
 
 test('bulk delete asks for confirmation before destructive actions', () => {
-    assert.match(source, /window\.confirm\(`确认\$\{actionLabel\}选中的 \$\{this\.selectedNodes\.size\} 条会话？`\)/);
-    assert.match(source, /this\.setStatus\('已取消'\)/);
+    assert.match(source, /formatMessage\('confirmAction'/);
+    assert.match(source, /this\.setStatus\(formatMessage\('cancelled'\)\)/);
 });
 
 test('bulk delete queue uses the configured fast interval', () => {

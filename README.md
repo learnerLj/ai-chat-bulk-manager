@@ -4,123 +4,131 @@ AI Chat Bulk Manager is a Tampermonkey userscript that helps you select and mana
 
 It is built for people who have too many AI chat histories and do not want to archive or delete them one by one.
 
-## What It Does
-
-### ChatGPT
-
-- Adds checkboxes to conversations in the sidebar.
-- Adds a control bar above the conversation list.
-- Lets you bulk archive selected conversations.
-- Lets you bulk delete selected conversations from the visible sidebar list.
-
-### Gemini
-
-- Adds checkboxes to conversations in the history list.
-- Adds a control bar above the history list.
-- Lets you bulk delete selected conversations.
-- Runs the same visible delete flow you would do manually: open menu, click delete, confirm.
-
 ## Install
 
-1. Install [Tampermonkey](https://www.tampermonkey.net/).
-2. Open the Tampermonkey dashboard.
-3. Create a new script.
-4. Copy everything from [`src/index.user.js`](src/index.user.js).
-5. Paste it into Tampermonkey.
-6. Save the script.
-7. Refresh ChatGPT or Gemini.
+Most users should install the published Greasy Fork version.
 
-Supported pages:
+1. Install a userscript manager:
+   - [Tampermonkey official download page](https://www.tampermonkey.net/)
+2. Install this script:
+   - [AI Chat Bulk Manager on Greasy Fork](https://greasyfork.org/zh-CN/scripts/584604-ai-chat-bulk-manager)
+   - [Direct install link](https://update.greasyfork.org/scripts/584604/AI%20Chat%20Bulk%20Manager.user.js)
+3. Refresh ChatGPT or Gemini.
 
-- `https://chatgpt.com/`
-- `https://gemini.google.com/app`
+After installation, open one of these pages:
+
+- [ChatGPT](https://chatgpt.com/)
+- [Gemini](https://gemini.google.com/app)
+
+## What It Looks Like
+
+These screenshots show the controls after the script is installed and the chat history list has loaded.
+
+<p>
+  <img src="assets/chatgpt-sidebar-controls.png" width="320" alt="AI Chat Bulk Manager controls in the ChatGPT sidebar">
+  <img src="assets/gemini-sidebar-controls.png" width="320" alt="AI Chat Bulk Manager controls in the Gemini sidebar">
+</p>
 
 ## How To Use
 
 ### ChatGPT
 
-1. Open ChatGPT.
-2. Wait for the left sidebar conversation list to load.
-3. Tick the conversations you want to manage.
-4. Click:
-   - `归档选中` to archive them.
-   - `删除选中` to remove them from the visible conversation list.
+The script adds checkboxes and a control bar above the sidebar conversation list.
 
-The ChatGPT delete action removes conversations from the normal visible list. For most users, this behaves like deletion because the conversations are no longer available from the sidebar.
+1. Open [ChatGPT](https://chatgpt.com/).
+2. Tick the conversations you want to manage.
+3. Click `Archive selected / 归档选中` to archive or `Delete selected / 删除选中` to remove them from the visible list.
+4. Confirm the prompt if you choose delete.
+
+ChatGPT delete is a user-facing delete. The conversation disappears from the normal sidebar list.
 
 ### Gemini
 
-1. Open Gemini.
-2. Wait for the history list to load.
-3. Tick the conversations you want to delete.
-4. Click `删除选中`.
-5. Confirm the browser prompt.
+The script adds checkboxes and a control bar above the history list.
 
-The script will delete the selected Gemini conversations one by one.
-
-## Buttons
-
-- `归档选中`: Archive selected ChatGPT conversations.
-- `删除选中`: Delete selected conversations.
-- `停止`: Stop a running batch.
-- Top checkbox: Select or unselect all currently visible conversations.
+1. Open [Gemini](https://gemini.google.com/app).
+2. Tick the conversations you want to delete.
+3. Click `Delete selected / 删除选中`.
+4. Confirm the prompt.
+5. Keep the tab open while the script deletes conversations one by one.
 
 ## Safety Notes
 
 - Bulk delete asks for confirmation before it starts.
-- Try it on one or two test conversations first.
+- Try it on one or two unimportant conversations first.
+- Keep the page open until the batch finishes.
 - The script only runs on ChatGPT and Gemini.
 - The script does not send your data to any third-party server.
-- Browser screenshots and test logs are not included in this repository.
-
-## If It Feels Too Fast Or Too Slow
-
-Gemini deletion speed can be adjusted inside `src/index.user.js`:
-
-```js
-const BULK_DELETE_INTERVAL_MS = 100;
-const GEMINI_DELETE_POLL_MS = 150;
-```
-
-If Gemini misses a delete dialog or leaves a popup open, increase `BULK_DELETE_INTERVAL_MS` to `300` or `500`.
 
 ## 中文说明
 
 AI Chat Bulk Manager 是一个用于 ChatGPT 和 Gemini 的油猴脚本。它会在左侧历史会话列表里加入多选框，让你一次选择多条会话，然后批量归档或删除。
 
-### 安装方法
+### 安装
 
-1. 安装 Tampermonkey。
-2. 打开 Tampermonkey 管理后台。
-3. 新建脚本。
-4. 复制 `src/index.user.js` 的完整内容。
-5. 粘贴到 Tampermonkey 并保存。
-6. 刷新 ChatGPT 或 Gemini。
+普通用户建议直接安装 Greasy Fork 发布版。
+
+1. 先安装用户脚本管理器：
+   - [Tampermonkey 官方下载页](https://www.tampermonkey.net/)
+2. 再安装本脚本：
+   - [Greasy Fork 发布页](https://greasyfork.org/zh-CN/scripts/584604-ai-chat-bulk-manager)
+   - [直接安装链接](https://update.greasyfork.org/scripts/584604/AI%20Chat%20Bulk%20Manager.user.js)
+3. 刷新 ChatGPT 或 Gemini。
+
+安装后打开：
+
+- [ChatGPT](https://chatgpt.com/)
+- [Gemini](https://gemini.google.com/app)
+
+### 界面效果
+
+下面两张图展示的是脚本安装完成后，在左侧历史会话列表里出现的多选框和控制条。
+
+<p>
+  <img src="assets/chatgpt-sidebar-controls.png" width="320" alt="ChatGPT 侧边栏里的 AI Chat Bulk Manager 控制条">
+  <img src="assets/gemini-sidebar-controls.png" width="320" alt="Gemini 侧边栏里的 AI Chat Bulk Manager 控制条">
+</p>
 
 ### ChatGPT 怎么用
 
-1. 打开 ChatGPT。
-2. 勾选左侧要处理的会话。
-3. 点击：
-   - `归档选中`：批量归档。
-   - `删除选中`：从可见会话列表中移除。
+脚本会在左侧会话列表上方加入控制条，并在每条会话旁加入多选框。
+
+1. 打开 [ChatGPT](https://chatgpt.com/)。
+2. 勾选要处理的会话。
+3. 点击 `Archive selected / 归档选中` 批量归档，或点击 `Delete selected / 删除选中` 从可见列表移除。
+4. 如果选择删除，再确认一次弹窗。
 
 ChatGPT 的删除是用户层面的删除：会话会从正常侧边栏里消失。
 
 ### Gemini 怎么用
 
-1. 打开 Gemini。
-2. 勾选左侧历史记录。
-3. 点击 `删除选中`。
-4. 确认弹窗后，脚本会逐条执行删除。
+脚本会在左侧历史记录上方加入控制条，并在每条记录旁加入多选框。
+
+1. 打开 [Gemini](https://gemini.google.com/app)。
+2. 勾选要删除的会话。
+3. 点击 `Delete selected / 删除选中`。
+4. 确认弹窗。
+5. 删除过程中保持页面打开，脚本会逐条执行删除。
 
 ### 注意事项
 
 - 批量删除前会弹确认框。
 - 第一次建议先选 1 到 2 条不重要的会话测试。
-- 如果 Gemini 删除太快导致漏删，可以把 `BULK_DELETE_INTERVAL_MS` 调大。
+- 批量运行时不要立刻关闭页面。
+- 这个脚本只在 ChatGPT 和 Gemini 页面运行。
+- 脚本不会把你的数据发送到第三方服务器。
 
-## Technical Details
+## For Developers
+
+Use the Greasy Fork version unless you are developing or testing local changes.
+
+Manual local install:
+
+1. Open the Tampermonkey dashboard.
+2. Create a new script.
+3. Copy everything from [`src/index.user.js`](src/index.user.js).
+4. Paste it into Tampermonkey and save.
+5. Refresh ChatGPT or Gemini.
 
 Implementation notes are in [`spec.md`](spec.md). Maintenance steps are in [`plan.md`](plan.md).
 
