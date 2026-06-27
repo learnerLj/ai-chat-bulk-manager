@@ -2,10 +2,12 @@
 // @name         AI Chat Bulk Manager
 // @name:zh-CN   AI Chat Bulk Manager
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Bulk archive or delete ChatGPT and Gemini conversations
 // @description:zh-CN 批量归档或删除 ChatGPT 和 Gemini 的历史会话
 // @author       Luo Jiahao
+// @homepageURL  https://github.com/learnerLj/ai-chat-bulk-manager
+// @supportURL   https://github.com/learnerLj/ai-chat-bulk-manager/issues
 // @match        https://chatgpt.com/*
 // @match        https://gemini.google.com/*
 // @grant        GM_xmlhttpRequest

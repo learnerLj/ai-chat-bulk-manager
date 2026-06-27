@@ -4,6 +4,11 @@ AI Chat Bulk Manager is a Tampermonkey userscript that helps you select and mana
 
 It is built for people who have too many AI chat histories and do not want to archive or delete them one by one.
 
+Source code and issue tracker:
+
+- [GitHub repository](https://github.com/learnerLj/ai-chat-bulk-manager)
+- [Report an issue](https://github.com/learnerLj/ai-chat-bulk-manager/issues)
+
 ## Install
 
 Most users should install the published Greasy Fork version.
@@ -25,8 +30,8 @@ After installation, open one of these pages:
 These screenshots show the controls after the script is installed and the chat history list has loaded.
 
 <p>
-  <img src="assets/chatgpt-sidebar-controls.png" width="320" alt="AI Chat Bulk Manager controls in the ChatGPT sidebar">
-  <img src="assets/gemini-sidebar-controls.png" width="320" alt="AI Chat Bulk Manager controls in the Gemini sidebar">
+  <img src="https://raw.githubusercontent.com/learnerLj/ai-chat-bulk-manager/master/assets/chatgpt-sidebar-controls.png" width="320" alt="AI Chat Bulk Manager controls in the ChatGPT sidebar">
+  <img src="https://raw.githubusercontent.com/learnerLj/ai-chat-bulk-manager/master/assets/gemini-sidebar-controls.png" width="320" alt="AI Chat Bulk Manager controls in the Gemini sidebar">
 </p>
 
 ## How To Use
@@ -85,8 +90,8 @@ AI Chat Bulk Manager 是一个用于 ChatGPT 和 Gemini 的油猴脚本。它会
 下面两张图展示的是脚本安装完成后，在左侧历史会话列表里出现的多选框和控制条。
 
 <p>
-  <img src="assets/chatgpt-sidebar-controls.png" width="320" alt="ChatGPT 侧边栏里的 AI Chat Bulk Manager 控制条">
-  <img src="assets/gemini-sidebar-controls.png" width="320" alt="Gemini 侧边栏里的 AI Chat Bulk Manager 控制条">
+  <img src="https://raw.githubusercontent.com/learnerLj/ai-chat-bulk-manager/master/assets/chatgpt-sidebar-controls.png" width="320" alt="ChatGPT 侧边栏里的 AI Chat Bulk Manager 控制条">
+  <img src="https://raw.githubusercontent.com/learnerLj/ai-chat-bulk-manager/master/assets/gemini-sidebar-controls.png" width="320" alt="Gemini 侧边栏里的 AI Chat Bulk Manager 控制条">
 </p>
 
 ### ChatGPT 怎么用
@@ -130,7 +135,7 @@ Manual local install:
 4. Paste it into Tampermonkey and save.
 5. Refresh ChatGPT or Gemini.
 
-Implementation notes are in [`spec.md`](spec.md). Maintenance steps are in [`plan.md`](plan.md).
+Implementation notes are in [`spec.md`](https://github.com/learnerLj/ai-chat-bulk-manager/blob/master/spec.md). Maintenance steps are in [`plan.md`](https://github.com/learnerLj/ai-chat-bulk-manager/blob/master/plan.md).
 
 ## License
 
