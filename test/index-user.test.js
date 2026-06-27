@@ -6,7 +6,7 @@ const test = require('node:test');
 const source = readFileSync(join(__dirname, '../src/index.user.js'), 'utf8');
 
 test('userscript metadata includes localized Greasy Fork fields and a bumped version', () => {
-    assert.match(source, /@version\s+0\.2/);
+    assert.match(source, /@version\s+0\.3/);
     assert.match(source, /@name:zh-CN\s+AI Chat Bulk Manager/);
     assert.match(source, /@description:zh-CN\s+批量归档或删除 ChatGPT 和 Gemini 的历史会话/);
     assert.match(source, /@description\s+Bulk archive or delete ChatGPT and Gemini conversations/);
