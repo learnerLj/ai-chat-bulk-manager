@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         AI Chat Bulk Manager
+// @name:zh-CN   AI Chat Bulk Manager
 // @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  Bulk delete/hide conversations on AI Chat platforms
+// @version      0.2
+// @description  Bulk archive or delete ChatGPT and Gemini conversations
+// @description:zh-CN 批量归档或删除 ChatGPT 和 Gemini 的历史会话
 // @author       Luo Jiahao
 // @match        https://chatgpt.com/*
 // @match        https://gemini.google.com/*
