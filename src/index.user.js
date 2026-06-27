@@ -140,5 +140,98 @@
         return null;
     };
 
+    class BulkManager {
+        constructor() {
+            this.adapter = getAdapter();
+            if (!this.adapter) return;
+            this.selectedNodes = new Set();
+            this.isDeleting = false;
+            this.init();
+        }
+
+        init() {
+            GM_addStyle(`
+                .bulk-delete-checkbox { width: 16px; height: 16px; margin: 4px; cursor: pointer; }
+                #bulk-controls-panel { padding: 10px; display: flex; gap: 8px; border-bottom: 1px solid #ccc; background: rgba(0,0,0,0.05); }
+                .bulk-btn { padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #aaa; }
+            `);
+            this.startObserver();
+            this.injectPanel();
+        }
+
+        injectPanel() {
+            if (document.getElementById('bulk-controls-panel')) return;
+            const header = this.adapter.getSidebarHeader();
+            if (!header) return;
+            
+            const panel = document.createElement('div');
+            panel.id = 'bulk-controls-panel';
+            panel.innerHTML = `
+                <input type="checkbox" id="bulk-select-all" />
+                <button class="bulk-btn" id="bulk-delete-btn">删除选中 (0)</button>
+            `;
+            
+            header.insertBefore(panel, header.firstChild);
+            
+            panel.querySelector('#bulk-select-all').addEventListener('change', (e) => {
+                const list = this.adapter.getConversations();
+                list.forEach(node => {
+                    const cb = node.querySelector('.bulk-delete-checkbox');
+                    if (cb) {
+                        cb.checked = e.target.checked;
+                        this.onSelectChange(node, e.target.checked);
+                    }
+                });
+            });
+
+            panel.querySelector('#bulk-delete-btn').addEventListener('click', () => this.runBulkDelete());
+        }
+
+        onSelectChange(node, isSelected) {
+            if (isSelected) {
+                this.selectedNodes.add(node);
+            } else {
+                this.selectedNodes.delete(node);
+            }
+            const btn = document.getElementById('bulk-delete-btn');
+            if (btn) {
+                btn.innerText = `删除选中 (${this.selectedNodes.size})`;
+            }
+        }
+
+        startObserver() {
+            setInterval(() => {
+                const list = this.adapter.getConversations();
+                list.forEach(node => this.adapter.injectCheckbox(node, (n, s) => this.onSelectChange(n, s)));
+                this.injectPanel();
+            }, 1000);
+        }
+
+        async runBulkDelete() {
+            if (this.isDeleting || this.selectedNodes.size === 0) return;
+            this.isDeleting = true;
+            const btn = document.getElementById('bulk-delete-btn');
+            const nodes = Array.from(this.selectedNodes);
+            
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                btn.innerText = `正在删除 (${i + 1}/${nodes.length})`;
+                try {
+                    await this.adapter.deleteConversation(node);
+                    this.selectedNodes.delete(node);
+                } catch(e) {
+                    console.error('Delete failed', e);
+                }
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            
+            btn.innerText = `删除选中 (0)`;
+            const selectAll = document.getElementById('bulk-select-all');
+            if (selectAll) selectAll.checked = false;
+            this.isDeleting = false;
+        }
+    }
+
+    new BulkManager();
     console.log('AI Chat Bulk Manager initialized');
 })();
