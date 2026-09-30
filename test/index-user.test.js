@@ -6,7 +6,7 @@ const test = require('node:test');
 const source = readFileSync(join(__dirname, '../src/index.user.js'), 'utf8');
 
 test('userscript metadata includes localized Greasy Fork fields and a bumped version', () => {
-    assert.match(source, /@version\s+0\.4/);
+    assert.match(source, /@version\s+0\.7/);
     assert.match(source, /@name:zh-CN\s+AI Chat Bulk Manager/);
     assert.match(source, /@description:zh-CN\s+批量归档或删除 ChatGPT 和 Gemini 的历史会话/);
     assert.match(source, /@description\s+Bulk archive or delete ChatGPT and Gemini conversations/);
@@ -14,14 +14,28 @@ test('userscript metadata includes localized Greasy Fork fields and a bumped ver
     assert.match(source, /@supportURL\s+https:\/\/github\.com\/learnerLj\/ai-chat-bulk-manager\/issues/);
 });
 
+test('checkboxes paint a visible checked state over the site input reset', () => {
+    assert.match(source, /#bulk-select-all:checked/);
+    assert.match(source, /\.bulk-delete-checkbox:checked/);
+    assert.match(source, /appearance:\s*none/);
+    assert.match(source, /html\[data-theme="light"\] \.bulk-delete-checkbox:checked/);
+    assert.match(source, /background-image:\s*url\("data:image\/svg\+xml/);
+});
+
 test('ChatGPT conversation selector accepts absolute and relative /c/ links', () => {
     assert.match(source, /a\[href\*=["']\/c\/["']\]/);
 });
 
-test('ChatGPT control panel mounts above the conversation list', () => {
-    assert.match(source, /firstConversation\?\.closest\('ul'\)/);
+test('ChatGPT control panel mounts inside the history column, not beside the icon rail', () => {
+    assert.match(source, /firstConversation\?\.closest\('nav'\)/);
+    assert.match(source, /overflowY === 'auto' \|\| overflowY === 'scroll'/);
+    assert.match(source, /parentDirection === 'row' \|\| parentDirection === 'row-reverse'/);
     assert.match(source, /bulk-controls-panel-chatgpt/);
+    assert.match(source, /#bulk-controls-panel\.bulk-controls-panel-chatgpt \{[^}]*background: rgba\(255,255,255,0\.96\)/);
+    assert.match(source, /html\[data-theme="dark"\] #bulk-controls-panel\.bulk-controls-panel-chatgpt \{[^}]*background: rgba\(32,32,32,0\.96\)/);
+    assert.match(source, /html\[data-theme="dark"\] #bulk-controls-panel\.bulk-controls-panel-chatgpt \.bulk-btn/);
     assert.match(source, /isChatGPT && header\.parentElement/);
+    assert.doesNotMatch(source, /closest\('ul'\)/);
 });
 
 test('ChatGPT supports archive as the primary bulk action', () => {

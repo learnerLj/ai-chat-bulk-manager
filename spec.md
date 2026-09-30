@@ -35,7 +35,7 @@ The adapters expose:
 
 - Conversation links: `nav a[href*="/c/"]`
 - Conversation id extraction: `/c/{uuid}`
-- Control panel mount: above the first conversation list `ul`
+- Control panel mount: the scrollable child of the `nav` that contains `/c/{uuid}` links. Insert the panel before that child. The icon rail `nav` is not a mount point; its parent is a horizontal flex, and a sibling there becomes its own column.
 
 ### 4.2 Auth
 

@@ -2,7 +2,7 @@
 // @name         AI Chat Bulk Manager
 // @name:zh-CN   AI Chat Bulk Manager
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.7
 // @description  Bulk archive or delete ChatGPT and Gemini conversations
 // @description:zh-CN 批量归档或删除 ChatGPT 和 Gemini 的历史会话
 // @author       Luo Jiahao
@@ -356,7 +356,13 @@
 
         getSidebarHeader() {
             const firstConversation = this.getConversations()[0];
-            return firstConversation?.closest('ul') || document.querySelector('nav');
+            const historyNav = firstConversation?.closest('nav');
+            if (!historyNav) return null;
+            const scroll = Array.from(historyNav.children).find((node) => {
+                const overflowY = getComputedStyle(node).overflowY;
+                return overflowY === 'auto' || overflowY === 'scroll';
+            });
+            return scroll || historyNav.firstElementChild;
         }
     }
 
@@ -511,10 +517,16 @@
 
         init() {
             addStyle(`
-                .bulk-delete-checkbox { width: 16px; height: 16px; margin: 4px 8px 4px 0; cursor: pointer; flex: 0 0 auto; }
+                .bulk-delete-checkbox, #bulk-select-all { appearance: none; -webkit-appearance: none; box-sizing: border-box; width: 16px; height: 16px; min-width: 16px; min-height: 16px; margin: 4px 8px 4px 0; padding: 0; cursor: pointer; flex: 0 0 auto; border: 1.5px solid rgba(255,255,255,0.85); border-radius: 3px; background-color: rgba(0,0,0,0.35); background-image: none; background-repeat: no-repeat; background-position: center; background-size: 12px 12px; }
+                .bulk-delete-checkbox:checked, #bulk-select-all:checked { border-color: #f4f4f4; background-color: #f4f4f4; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.2 6.4 11.1 12.5 4.8' fill='none' stroke='%23111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+                html[data-theme="light"] .bulk-delete-checkbox, html[data-theme="light"] #bulk-select-all { border-color: rgba(0,0,0,0.72); background-color: #fff; }
+                html[data-theme="light"] .bulk-delete-checkbox:checked, html[data-theme="light"] #bulk-select-all:checked { border-color: #111; background-color: #111; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.2 6.4 11.1 12.5 4.8' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
                 #bulk-controls-panel { padding: 8px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(0,0,0,0.16); background: rgba(255,255,255,0.92); color: #111; position: sticky; top: 0; z-index: 9999; font-size: 12px; }
                 #bulk-controls-panel.bulk-controls-panel-gemini { margin: 4px 0 8px; border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; background: rgba(32,32,32,0.96); color: #f2f2f2; box-sizing: border-box; max-width: 100%; }
-                #bulk-controls-panel.bulk-controls-panel-chatgpt { margin: 4px 0 8px; border-radius: 8px; box-sizing: border-box; max-width: 100%; }
+                #bulk-controls-panel.bulk-controls-panel-chatgpt { margin: 4px 8px 8px; border: 1px solid rgba(0,0,0,0.16); border-radius: 8px; background: rgba(255,255,255,0.96); color: #0d0d0d; box-sizing: border-box; width: auto; max-width: 100%; min-width: 0; height: auto; flex: 0 0 auto; align-self: stretch; flex-wrap: wrap; }
+                #bulk-controls-panel.bulk-controls-panel-chatgpt .bulk-btn { background: #fff; color: #0d0d0d; border-color: rgba(0,0,0,0.28); }
+                html[data-theme="dark"] #bulk-controls-panel.bulk-controls-panel-chatgpt { border-color: rgba(255,255,255,0.16); background: rgba(32,32,32,0.96); color: #f2f2f2; }
+                html[data-theme="dark"] #bulk-controls-panel.bulk-controls-panel-chatgpt .bulk-btn { background: #2a2a2a; color: #f2f2f2; border-color: #555; }
                 .bulk-btn { padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #aaa; background: #fff; color: #111; }
                 .bulk-btn:disabled { cursor: not-allowed; opacity: 0.5; }
                 .bulk-status { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -567,7 +579,12 @@
             if (isGemini) {
                 header.parentElement.insertBefore(panel, header);
             } else if (isChatGPT && header.parentElement) {
-                header.parentElement.insertBefore(panel, header);
+                const parentDirection = getComputedStyle(header.parentElement).flexDirection;
+                if (parentDirection === 'row' || parentDirection === 'row-reverse') {
+                    header.insertBefore(panel, header.firstChild);
+                } else {
+                    header.parentElement.insertBefore(panel, header);
+                }
             } else {
                 header.insertBefore(panel, header.firstChild);
             }
